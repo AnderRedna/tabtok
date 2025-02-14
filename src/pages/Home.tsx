@@ -7,6 +7,7 @@ import { TabNewsPost } from '../types/tabnews';
 import PostView from '../components/PostView';
 import { Twitter } from 'lucide-react';
 import ProcrastinationCard from '../components/ProcrastinationCard';
+import PullToRefresh from '../components/PullToRefresh';
 
 const procrastinationMessages = [
   "Você está a muito tempo scrollando, acho melhor você não procrastinar?",
@@ -26,13 +27,18 @@ export default function Home() {
   const [messageIndex, setMessageIndex] = useState(0);
   const [postCount, setPostCount] = useState(0);
   const postsPerScroll = Number(localStorage.getItem('postsPerScroll')) || 2;
+  const [isPulling, setIsPulling] = useState(false);
+  const [pullProgress, setPullProgress] = useState(0);
+  const [startY, setStartY] = useState(0);
 
   const {
     data,
     fetchNextPage,
     hasNextPage,
     isLoading,
-    isError
+    isError,
+    refetch,
+    isFetching
   } = useInfiniteQuery(
     'posts',
     ({ pageParam = 1 }) => fetchPosts(pageParam),
@@ -90,6 +96,29 @@ export default function Home() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [selectedPost]);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      setStartY(e.touches[0].clientY);
+      setIsPulling(true);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isPulling) {
+      const deltaY = e.touches[0].clientY - startY;
+      const progress = Math.min(Math.max(deltaY / 100, 0), 1);
+      setPullProgress(progress);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (pullProgress > 0.5 && !isFetching) {
+      refetch();
+    }
+    setIsPulling(false);
+    setPullProgress(0);
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -120,7 +149,18 @@ export default function Home() {
   }
 
   return (
-    <>
+    <div
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className="relative"
+    >
+      <PullToRefresh
+        isPulling={isPulling}
+        pullProgress={pullProgress}
+        isRefreshing={isFetching}
+      />
+      
       <div className="pb-16 pt-4 px-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div className="max-w-lg mx-auto">
           {postGroups.map((group, groupIndex) => (
@@ -146,6 +186,6 @@ export default function Home() {
       {selectedPost && (
         <PostView post={selectedPost} onClose={handleClosePost} />
       )}
-    </>
+    </div>
   );
 }
