@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, MessageCircle, Share2, Twitter } from 'lucide-react';
 import { TabNewsPost } from '../types/tabnews';
+import { useQuery } from 'react-query';
+import { fetchPostContent } from '../services/api';
 
 interface ContentCardProps {
   post: TabNewsPost;
@@ -11,6 +13,12 @@ interface ContentCardProps {
 }
 
 export default function ContentCard({ post, onUpvote, onClick, className }: ContentCardProps) {
+  const { data: fullPost } = useQuery(
+    ['post', post.owner_username, post.slug],
+    () => fetchPostContent(post.owner_username, post.slug),
+    { staleTime: 1000 * 60 * 5 } // Cache por 5 minutos
+  );
+
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
     const url = `https://www.tabnews.com.br/${post.owner_username}/${post.slug}`;
@@ -45,11 +53,11 @@ export default function ContentCard({ post, onUpvote, onClick, className }: Cont
         </div>
       </div>
 
-      <h2 className="text-base font-bold mb-2 line-clamp-2 min-h-[2.5rem] dark:text-white">
+      <h2 className="text-base font-bold mb-1 line-clamp-2 dark:text-white">
         {post.title}
       </h2>
-      <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 line-clamp-3">
-        {post.body}
+      <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 line-clamp-2">
+        {fullPost?.body || post.body}
       </p>
 
       <div className="flex justify-between items-center">
