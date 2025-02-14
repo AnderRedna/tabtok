@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Share2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Twitter } from 'lucide-react';
 import { TabNewsPost } from '../types/tabnews';
 
 interface ContentCardProps {
@@ -10,13 +10,16 @@ interface ContentCardProps {
 }
 
 export default function ContentCard({ post, onUpvote, onClick }: ContentCardProps) {
-  const truncateText = (text: string | null | undefined, maxLength: number) => {
-    if (!text) return '';
-    if (text.length <= maxLength) return text;
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = `https://www.tabnews.com.br/${post.owner_username}/${post.slug}`;
     
-    // Find the last space within the maxLength
-    const lastSpace = text.substring(0, maxLength).lastIndexOf(' ');
-    return `${text.substring(0, lastSpace)}...`;
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Link copiado para a área de transferência!');
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
   return (
@@ -24,7 +27,7 @@ export default function ContentCard({ post, onUpvote, onClick }: ContentCardProp
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white rounded-lg shadow-md p-4 mb-4 w-full cursor-pointer hover:shadow-lg transition-shadow duration-200"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-4 w-full cursor-pointer hover:shadow-lg transition-shadow duration-200"
       onClick={onClick}
     >
       <div className="flex items-start mb-4">
@@ -34,18 +37,18 @@ export default function ContentCard({ post, onUpvote, onClick }: ContentCardProp
           className="w-8 h-8 rounded-full mr-2"
         />
         <div>
-          <h3 className="font-semibold text-sm">@{post.owner_username}</h3>
-          <p className="text-xs text-gray-500">
+          <h3 className="font-semibold text-sm dark:text-white">@{post.owner_username}</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             {new Date(post.published_at).toLocaleDateString()}
           </p>
         </div>
       </div>
 
-      <h2 className="text-base font-bold mb-2 line-clamp-2 min-h-[2.5rem]">
+      <h2 className="text-base font-bold mb-2 line-clamp-2 min-h-[2.5rem] dark:text-white">
         {post.title}
       </h2>
-      <p className="text-sm text-gray-700 mb-4">
-        {truncateText(post.body, 120)}
+      <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 line-clamp-3">
+        {post.body}
       </p>
 
       <div className="flex justify-between items-center">
@@ -54,14 +57,14 @@ export default function ContentCard({ post, onUpvote, onClick }: ContentCardProp
             e.stopPropagation();
             onUpvote(post.slug);
           }}
-          className="flex items-center space-x-1 text-gray-600 hover:text-red-500"
+          className="flex items-center space-x-1 text-gray-600 dark:text-gray-400 hover:text-red-500"
         >
           <Heart size={16} />
           <span className="text-sm">{post.tabcoins}</span>
         </button>
         
         <button 
-          className="flex items-center space-x-1 text-gray-600"
+          className="flex items-center space-x-1 text-gray-600 dark:text-gray-400"
           onClick={(e) => e.stopPropagation()}
         >
           <MessageCircle size={16} />
@@ -69,8 +72,8 @@ export default function ContentCard({ post, onUpvote, onClick }: ContentCardProp
         </button>
 
         <button 
-          className="flex items-center space-x-1 text-gray-600"
-          onClick={(e) => e.stopPropagation()}
+          className="flex items-center space-x-1 text-gray-600 dark:text-gray-400 hover:text-blue-500"
+          onClick={handleShare}
         >
           <Share2 size={16} />
         </button>
