@@ -68,6 +68,8 @@ export default function Home() {
   };
 
   const handlePostClick = (post: TabNewsPost) => {
+    // Add state to history when opening post
+    window.history.pushState({ post: true }, '');
     setSelectedPost(post);
   };
 
@@ -75,9 +77,18 @@ export default function Home() {
     setSelectedPost(null);
   };
 
-  const handleDismissMessage = () => {
-    setShowProcrastinationMessage(false);
-  };
+  // Add effect to handle popstate event
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (selectedPost) {
+        event.preventDefault();
+        setSelectedPost(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [selectedPost]);
 
   if (isLoading) {
     return (
