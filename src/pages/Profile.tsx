@@ -2,28 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { Moon, Sun, Twitter } from 'lucide-react';
 
-const STRATEGY_LABELS: Record<string, string> = {
-  'relevant': 'Relevante',
-  'new': 'Novo',
-  'old': 'Velho'
-};
-
 export default function Profile() {
   const { theme, toggleTheme } = useTheme();
   const [postsPerScroll, setPostsPerScroll] = useState(
     Number(localStorage.getItem('postsPerScroll')) || 2
   );
-  const [strategy, setStrategy] = useState(
-    localStorage.getItem('strategy') || 'relevant'
-  );
 
   useEffect(() => {
     localStorage.setItem('postsPerScroll', postsPerScroll.toString());
   }, [postsPerScroll]);
-
-  useEffect(() => {
-    localStorage.setItem('strategy', strategy);
-  }, [strategy]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-4 px-4 pb-20">
@@ -62,27 +49,6 @@ export default function Profile() {
                     }`}
                   >
                     {number}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-gray-700 dark:text-gray-300">
-                Ordenação dos posts
-              </label>
-              <div className="flex gap-2">
-                {(['relevant', 'new', 'old'] as const).map(strat => (
-                  <button
-                    key={strat}
-                    onClick={() => setStrategy(strat)}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
-                      strategy === strat
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                    }`}
-                  >
-                    {STRATEGY_LABELS[strat]}
                   </button>
                 ))}
               </div>

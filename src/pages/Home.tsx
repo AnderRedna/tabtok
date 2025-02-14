@@ -30,7 +30,6 @@ export default function Home() {
   const [isPulling, setIsPulling] = useState(false);
   const [pullProgress, setPullProgress] = useState(0);
   const [startY, setStartY] = useState(0);
-  const strategy = localStorage.getItem('strategy') || 'relevant';
 
   const {
     data,
@@ -41,8 +40,8 @@ export default function Home() {
     refetch,
     isFetching
   } = useInfiniteQuery(
-    ['posts', strategy], // Add strategy to query key
-    ({ pageParam = 1 }) => fetchPosts(pageParam, strategy), // Pass strategy to fetchPosts
+    'posts',
+    ({ pageParam = 1 }) => fetchPosts(pageParam),
     {
       getNextPageParam: (lastPage, pages) => {
         return lastPage.length === 10 ? pages.length + 1 : undefined;

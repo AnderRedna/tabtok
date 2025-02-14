@@ -1,7 +1,7 @@
 const API_BASE_URL = 'https://www.tabnews.com.br/api/v1';
 
-export const fetchPosts = async (page = 1, strategy = 'relevant') => {
-  const response = await fetch(`${API_BASE_URL}/contents?page=${page}&per_page=10&strategy=${strategy}`);
+export const fetchPosts = async (page = 1) => {
+  const response = await fetch(`${API_BASE_URL}/contents?page=${page}&per_page=10&strategy=relevant`);
   if (!response.ok) throw new Error('Failed to fetch posts');
   return response.json();
 };
