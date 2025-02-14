@@ -105,17 +105,6 @@ export default function Home() {
     <>
       <div className="pb-16 pt-4 px-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div className="max-w-lg mx-auto">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold dark:text-white">TabNews</h1>
-            <a
-              href="https://x.com/Ander_pru"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-500"
-            >
-              <Twitter size={24} />
-            </a>
-          </div>
 
           {showProcrastinationMessage && (
             <div 
