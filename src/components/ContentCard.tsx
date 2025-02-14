@@ -7,9 +7,10 @@ interface ContentCardProps {
   post: TabNewsPost;
   onUpvote: (slug: string) => void;
   onClick: () => void;
+  className?: string;
 }
 
-export default function ContentCard({ post, onUpvote, onClick }: ContentCardProps) {
+export default function ContentCard({ post, onUpvote, onClick, className }: ContentCardProps) {
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
     const url = `https://www.tabnews.com.br/${post.owner_username}/${post.slug}`;
@@ -27,7 +28,7 @@ export default function ContentCard({ post, onUpvote, onClick }: ContentCardProp
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-4 w-full cursor-pointer hover:shadow-lg transition-shadow duration-200"
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-4 w-full cursor-pointer hover:shadow-lg transition-shadow duration-200 ${className}`}
       onClick={onClick}
     >
       <div className="flex items-start mb-4">

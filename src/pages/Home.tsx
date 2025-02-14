@@ -6,6 +6,7 @@ import { fetchPosts } from '../services/api';
 import { TabNewsPost } from '../types/tabnews';
 import PostView from '../components/PostView';
 import { Twitter } from 'lucide-react';
+import ProcrastinationCard from '../components/ProcrastinationCard';
 
 const procrastinationMessages = [
   "Você está a muito tempo scrollando, acho melhor você não procrastinar?",
@@ -54,8 +55,8 @@ export default function Home() {
     if (newPostCount !== postCount) {
       setPostCount(newPostCount);
       
-      // Show message every 6 posts viewed
-      if (newPostCount > 0 && Math.floor(newPostCount / 6) > Math.floor(postCount / 6)) {
+      // Show message every 4 posts viewed
+      if (newPostCount > 0 && Math.floor(newPostCount / 4) > Math.floor(postCount / 4)) {
         setShowProcrastinationMessage(true);
         setMessageIndex(prev => (prev + 1) % procrastinationMessages.length);
       }
@@ -98,42 +99,33 @@ export default function Home() {
   const postGroups = [];
   
   for (let i = 0; i < allPosts.length; i += postsPerScroll) {
-    postGroups.push(allPosts.slice(i, i + postsPerScroll));
+    const group = allPosts.slice(i, i + postsPerScroll);
+    postGroups.push(group);
+    
+    // Add ProcrastinationCard after every 4 posts
+    if ((i + postsPerScroll) % 4 === 0) {
+      postGroups.push(['procrastination']);
+    }
   }
 
   return (
     <>
       <div className="pb-16 pt-4 px-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div className="max-w-lg mx-auto">
-
-          {showProcrastinationMessage && (
-            <div 
-              className="fixed top-4 left-4 right-4 max-w-lg mx-auto z-50 bg-yellow-100 dark:bg-yellow-900 p-4 rounded-lg shadow-lg border border-yellow-200 dark:border-yellow-800"
-            >
-              <div className="flex justify-between items-center">
-                <p className="text-yellow-800 dark:text-yellow-200">
-                  {procrastinationMessages[messageIndex]}
-                </p>
-                <button
-                  onClick={handleDismissMessage}
-                  className="ml-4 text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-200"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-          )}
-
           {postGroups.map((group, groupIndex) => (
             <div key={groupIndex} className="snap-start min-h-screen flex flex-col justify-center gap-4">
-              {group.map((post) => (
-                <ContentCard
-                  key={post.id}
-                  post={post}
-                  onUpvote={handleUpvote}
-                  onClick={() => handlePostClick(post)}
-                />
-              ))}
+              {group[0] === 'procrastination' ? (
+                <ProcrastinationCard />
+              ) : (
+                group.map((post: TabNewsPost) => (
+                  <ContentCard
+                    key={post.id}
+                    post={post}
+                    onUpvote={handleUpvote}
+                    onClick={() => handlePostClick(post)}
+                  />
+                ))
+              )}
             </div>
           ))}
         </div>
