@@ -43,8 +43,12 @@ html {
   @apply mb-4;
 }
 
+.prose strong {
+  @apply text-gray-900 font-bold;
+}
+
 .prose h1, .prose h2, .prose h3, .prose h4 {
-  @apply font-bold mt-6 mb-4;
+  @apply text-gray-900 font-bold mt-6 mb-4;
 }
 
 .prose a {
@@ -60,11 +64,11 @@ html {
 }
 
 .prose code {
-  @apply bg-gray-800 text-gray-100 px-1.5 py-0.5 rounded text-sm font-mono;
+  @apply bg-gray-100 text-gray-900 px-1.5 py-0.5 rounded text-sm font-mono;
 }
 
 .prose pre {
-  @apply bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4;
+  @apply bg-gray-100 text-gray-900 p-4 rounded-lg overflow-x-auto mb-4;
 }
 
 .prose pre code {

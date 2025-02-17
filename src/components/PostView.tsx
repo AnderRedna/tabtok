@@ -6,6 +6,7 @@ import { useQuery } from 'react-query';
 import { fetchComments, fetchPostContent } from '../services/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 interface PostViewProps {
   post: TabNewsPost;
@@ -71,7 +72,20 @@ export default function PostView({ post, onClose }: PostViewProps) {
                 <>
                   <h1 className="text-2xl font-bold mb-4">{fullPost?.title}</h1>
                   <div className="prose prose-sm md:prose-base max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeRaw]}
+                      components={{
+                        pre: ({ node, ...props }) => (
+                          <pre className="overflow-auto p-4 bg-gray-100 rounded-lg" {...props} />
+                        ),
+                        code: ({ node, inline, ...props }) => (
+                          inline ? 
+                            <code className="bg-gray-100 px-1 rounded" {...props} /> :
+                            <code {...props} />
+                        )
+                      }}
+                    >
                       {fullPost?.body || ''}
                     </ReactMarkdown>
                   </div>
