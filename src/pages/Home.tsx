@@ -7,7 +7,8 @@ import { TabNewsPost } from '../types/tabnews';
 import PostView from '../components/PostView';
 import { Twitter } from 'lucide-react';
 import ProcrastinationCard from '../components/ProcrastinationCard';
-import PullToRefresh from '../components/PullToRefresh';
+// import PullToRefresh from '../components/PullToRefresh';
+import PostFilter from '../components/PostFilter';
 
 const procrastinationMessages = [
   "Você está a muito tempo scrollando, acho melhor você não procrastinar?",
@@ -20,6 +21,8 @@ const procrastinationMessages = [
   "Muita informação por hoje, não?",
 ];
 
+type FilterOption = 'all' | 'pitch' | 'question';
+
 export default function Home() {
   const { ref, inView } = useInView();
   const [selectedPost, setSelectedPost] = useState<TabNewsPost | null>(null);
@@ -31,6 +34,7 @@ export default function Home() {
   const [pullProgress, setPullProgress] = useState(0);
   const [startY, setStartY] = useState(0);
   const strategy = localStorage.getItem('strategy') || 'relevant';
+  const [selectedFilter, setSelectedFilter] = useState<FilterOption>('all');
 
   const {
     data,
@@ -130,17 +134,24 @@ export default function Home() {
 
   if (isError) {
     return (
-      <div className="flex justify-center items-center h-screen text-red-500">
-        Error ao carregar os posts.
-      </div>
+<div className="flex justify-center items-center h-screen text-red-500 text-center">
+    Você realizou muitas solicitações, por favor tente novamente mais tarde.
+</div>
+
     );
   }
 
   const allPosts = data?.pages.flatMap(page => page) || [];
+  const filteredPosts = allPosts.filter((post) => {
+    if (selectedFilter === 'all') return true;
+    if (selectedFilter === 'pitch') return post.title.toUpperCase().includes('[PITCH]');
+    if (selectedFilter === 'question') return post.title.toUpperCase().includes('[DÚVIDA]');
+    return true;
+  });
   const postGroups = [];
   
-  for (let i = 0; i < allPosts.length; i += postsPerScroll) {
-    const group = allPosts.slice(i, i + postsPerScroll);
+  for (let i = 0; i < filteredPosts.length; i += postsPerScroll) {
+    const group = filteredPosts.slice(i, i + postsPerScroll);
     postGroups.push(group);
     
     // Add ProcrastinationCard after every 4 posts
@@ -156,11 +167,11 @@ export default function Home() {
       onTouchEnd={handleTouchEnd}
       className="relative"
     >
-      <PullToRefresh
+      {/* <PullToRefresh
         isPulling={isPulling}
         pullProgress={pullProgress}
         isRefreshing={isFetching}
-      />
+      /> */}
       
       <div className="pb-16 pt-4 px-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div className="max-w-lg mx-auto">
@@ -184,6 +195,8 @@ export default function Home() {
         <div ref={ref} className="h-10" />
       </div>
 
+      <PostFilter selectedFilter={selectedFilter} onFilterChange={setSelectedFilter} />
+      
       {selectedPost && (
         <PostView post={selectedPost} onClose={handleClosePost} />
       )}

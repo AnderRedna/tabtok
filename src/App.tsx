@@ -5,6 +5,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import BottomNav from './components/BottomNav';
+import { Toaster } from 'react-hot-toast';
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
             </Routes>
             <BottomNav />
+            <Toaster />
           </div>
         </Router>
       </ThemeProvider>

@@ -4,6 +4,7 @@ import { Heart, MessageCircle, Share2, Twitter } from 'lucide-react';
 import { TabNewsPost } from '../types/tabnews';
 import { useQuery } from 'react-query';
 import { fetchPostContent } from '../services/api';
+import toast from 'react-hot-toast';
 
 interface ContentCardProps {
   post: TabNewsPost;
@@ -22,11 +23,24 @@ export default function ContentCard({ post, onUpvote, onClick, className }: Cont
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
     const url = `https://www.tabnews.com.br/${post.owner_username}/${post.slug}`;
+    const text = `Confira este post interessante no TabNews:\n"${post.title}"\n\n${url}`;
     
     try {
-      await navigator.clipboard.writeText(url);
-      alert('Link copiado para a área de transferência!');
+      await navigator.clipboard.writeText(text);
+      toast.success('Link copiado! 📋✨', {
+        duration: 2000,
+        position: 'bottom-center',
+        style: {
+          background: '#333',
+          color: '#fff',
+          padding: '12px',
+          borderRadius: '8px',
+          fontSize: '0.875rem',
+        },
+        icon: '🔗',
+      });
     } catch (err) {
+      toast.error('Ops! Não foi possível copiar o link 😅');
       console.error('Failed to copy:', err);
     }
   };
