@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import { useInView } from 'react-intersection-observer';
 import ContentCard from '../components/ContentCard';
@@ -51,6 +51,9 @@ export default function Home() {
       getNextPageParam: (lastPage, pages) => {
         return lastPage.length === 10 ? pages.length + 1 : undefined;
       },
+      staleTime: 1000 * 60 * 5, // Cache por 5 minutos
+      cacheTime: 1000 * 60 * 10, // Mantém cache por 10 minutos
+      refetchOnWindowFocus: false, // Evita refetch ao focar na janela
     }
   );
 
@@ -124,6 +127,32 @@ export default function Home() {
     setPullProgress(0);
   };
 
+  // Usar useMemo para cachear os posts filtrados
+  const filteredPosts = useMemo(() => {
+    const allPosts = data?.pages.flatMap(page => page) || [];
+    if (selectedFilter === 'all') return allPosts;
+    
+    return allPosts.filter((post) => {
+      if (selectedFilter === 'pitch') return post.title.toUpperCase().includes('[PITCH]') || post.title.toUpperCase().includes('[PITh]') || post.title.toUpperCase().includes('[PIT]');
+      if (selectedFilter === 'question') return post.title.toUpperCase().includes('[DÚVIDA]') || post.title.toUpperCase().includes('[DUVIDA]') || post.title.toUpperCase().includes('[AJUDA]') ;
+      return true;
+    });
+  }, [data?.pages, selectedFilter]);
+
+  // Usar useMemo para cachear os grupos de posts
+  const postGroups = useMemo(() => {
+    const groups = [];
+    for (let i = 0; i < filteredPosts.length; i += postsPerScroll) {
+      const group = filteredPosts.slice(i, i + postsPerScroll);
+      groups.push(group);
+      
+      if ((i + postsPerScroll) % 4 === 0) {
+        groups.push(['procrastination']);
+      }
+    }
+    return groups;
+  }, [filteredPosts, postsPerScroll]);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -139,25 +168,6 @@ export default function Home() {
 </div>
 
     );
-  }
-
-  const allPosts = data?.pages.flatMap(page => page) || [];
-  const filteredPosts = allPosts.filter((post) => {
-    if (selectedFilter === 'all') return true;
-    if (selectedFilter === 'pitch') return post.title.toUpperCase().includes('[PITCH]');
-    if (selectedFilter === 'question') return post.title.toUpperCase().includes('[DÚVIDA]');
-    return true;
-  });
-  const postGroups = [];
-  
-  for (let i = 0; i < filteredPosts.length; i += postsPerScroll) {
-    const group = filteredPosts.slice(i, i + postsPerScroll);
-    postGroups.push(group);
-    
-    // Add ProcrastinationCard after every 4 posts
-    if ((i + postsPerScroll) % 4 === 0) {
-      postGroups.push(['procrastination']);
-    }
   }
 
   return (
